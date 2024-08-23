@@ -6,7 +6,7 @@ import pathlib
 
 
 class Main(cmd.Cmd):
-    prompt = "> "
+    prompt = ">>> "
     intro = """
     Program for merge levels in Beat Block.
     Github of program: https://github.com/Alt-Gerutro/collabsBeatBlock
@@ -25,9 +25,9 @@ class Main(cmd.Cmd):
         Usage: merge (-p | --paths) path/1.zip path/2.zip ... path/n.zip ((-d | --default-mode) | (-n | --non-default-mode))"""
         parser = argparse.ArgumentParser(prog="merge")
 
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument("-d", "--default-mode", action="store_true", help="Turn on default merge. The merge does not depend on the last block, but on the 0 line")
-        group.add_argument("-n", "--non-default-mode", action="store_true", help="Turn on non-default merge. The merge does depend on the last block, but on the 0 line")
+        # group = parser.add_mutually_exclusive_group(required=True)
+        # group.add_argument("-d", "--default-mode", action="store_true", help="Turn on default merge. The merge does not depend on the last block, but on the 0 line")
+        # group.add_argument("-n", "--non-default-mode", action="store_true", help="Turn on non-default merge. The merge does depend on the last block, but on the 0 line")
 
         parser.add_argument("-p", "--paths", nargs="+", type=pathlib.Path, help="Paths to .zip files", required=True)
         parser.add_argument("-E", "--End-path", type=pathlib.Path, help="Path to .zip file where the merged level will be recorded")
@@ -48,9 +48,9 @@ class Main(cmd.Cmd):
         """
         parser = argparse.ArgumentParser(prog="merge_charts")
 
-        group = parser.add_mutually_exclusive_group(required=True)
-        group.add_argument("-d", "--default-mode", action="store_true", help="Turn on default merge. The merge does not depend on the last block, but on the 0 line")
-        group.add_argument("-n", "--non-default-mode", action="store_true", help="Turn on non-default merge. The merge does depend on the last block, but on the 0 line")
+        # group = parser.add_mutually_exclusive_group(required=True)
+        # group.add_argument("-d", "--default-mode", action="store_true", help="Turn on default merge. The merge does not depend on the last block, but on the 0 line")
+        # group.add_argument("-n", "--non-default-mode", action="store_true", help="Turn on non-default merge. The merge does depend on the last block, but on the 0 line")
 
         parser.add_argument("-p", "--paths", nargs="+", type=pathlib.Path, help="Paths to .zip files", required=True)
         parser.add_argument("-E", "--End-path", type=pathlib.Path, help="Path to .zip file where the merged level will be recorded")

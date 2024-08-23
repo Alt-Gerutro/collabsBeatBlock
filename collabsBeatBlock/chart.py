@@ -8,16 +8,23 @@ import shutil
 def get_name():
     with open("../parts/part_0/level.json", "r", encoding="utf-8") as f:
         d = json.load(f)
-    name_ = (f"{d.get("metadata").get("artist")} - "
-             f"{d.get("metadata").get("songName")} [{d.get("metadata").get("difficulty")}] "
-             f"(by {d.get("metadata").get("charter")})")
+    name = (f"{d.get("metadata").get("artist")} - "
+            f"{d.get("metadata").get("songName")} [{d.get("metadata").get("difficulty")}] "
+            f"(by {d.get("metadata").get("charter")})")
     f.close()
-    return name_
+    return name
+
+
+def copy_deco(part_pth, end_pth):
+    shutil.copytree(part_pth, end_pth, ignore=shutil.ignore_patterns(f"{part_pth}/level.json",
+                                                                     f"{part_pth}/chart.json",
+                                                                     f"{part_pth}/backup"))
 
 
 class Collab:
-    def __init__(self, diction: list, folder_to_new_level):
+    def __init__(self, diction: list, folder_to_new_level: str, dmode: bool = True):
         self.name = None
+        self.dmode = dmode
         self.parts = {}
         self.num_of_parts = len(diction)
         self.folder_to_new_level = folder_to_new_level
@@ -62,6 +69,41 @@ class Collab:
                     arcname = os.path.relpath(file_path, root_dir)
                     zipf.write(file_path, arcname)
 
+    def merge_levels_n(self):
+        levels_pths = {}
+        for r in range(self.num_of_parts):
+            levels_pths[f"part_{r}"] = f"../parts/part_{r}/level.json"
+        combined_events = []
+        prev_parts_offset = 0
+        data_from_first_part = None
+        merged_data = None
+
+        for part, data in levels_pths.items():
+            with open(data, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                events = d.get("events", [])
+                if len(events) == 0:
+                    pass
+                else:
+                    prev_parts_offset += events[-1:][0]["time"]
+                for evn_items in events:
+                    if part == "part_0":
+                        continue
+                    else:
+                        evn_items["time"] += prev_parts_offset
+                combined_events.extend(events)
+                f.close()
+            if not isinstance(events, list):
+                raise ValueError(f"Expected a list for 'events' in {part}, got {type(events).__name__}")
+
+            if part == "part_0":
+                data_from_first_part = d
+
+        if data_from_first_part:
+            merged_data = data_from_first_part.copy()
+            merged_data["events"] = combined_events
+        return merged_data
+
     def merge_levels(self):
         levels_pths = {}
         for r in range(self.num_of_parts):
@@ -85,6 +127,30 @@ class Collab:
             merged_data = data_from_first_part.copy()
             merged_data["events"] = combined_events
         return merged_data
+
+    def merge_charts_n(self):
+        charts_pths = {}
+        for r in range(self.num_of_parts):
+            charts_pths[f"part_{r}"] = f"../parts/part_{r}/chart.json"
+        combined_charts = []
+        prev_parts_offset = 0
+        for part, path in charts_pths.items():
+            try:
+                with open(path, 'r') as file_l:
+                    file = json.load(file_l)
+                    prev_parts_offset += file[-1:][0]["time"]
+                    for lvl_items in file:
+                        if part == "part_0":
+                            continue
+                        else:
+                            lvl_items["time"] += prev_parts_offset
+                    combined_charts.extend(file)
+                    file_l.close()
+            except FileNotFoundError:
+                print(f"File not found: {path}")
+            except json.JSONDecodeError:
+                print(f"Error decoding JSON in file: {path}")
+        return combined_charts
 
     def merge_charts(self):
         charts_pths = {}
@@ -110,15 +176,29 @@ class Collab:
         crt_path = pathlib.Path(new_path, "chart.json")
 
         with open(lvl_path, "w+", encoding="utf-8") as file_lvl:
-            merged_lvl = self.merge_levels()
+            if self.dmode:
+                merged_lvl = self.merge_levels()
+            else:
+                merged_lvl = self.merge_levels_n()
             file_lvl.truncate()
             file_lvl.seek(0)
-            json.dump(merged_lvl, file_lvl)
+            file_lvl.write(json.dumps(merged_lvl))
             file_lvl.close()
 
-        with open(crt_path, "w+", encoding="utf-8") as file_crt:
+        with open(crt_path, "w+") as file_crt:
+            if self.dmode:
+                merged_crt = self.merge_charts()
+            else:
+                merged_crt = self.merge_charts_n()
             file_crt.seek(0)
-            file_crt.write(str(self.merge_charts()).replace("'", "\""))
+            file_crt.write(json.dumps(merged_crt))
             file_crt.close()
         self.zipping()
         # shutil.rmtree("../parts")
+
+
+if __name__ == "__main__":
+    cl = Collab([r"C:\Users\gerut\PycharmProjects\collabsBeatBlock\Charts\p1.zip", r"C:\Users\gerut\PycharmProjects\collabsBeatBlock\Charts\p2.zip"], r"../Final.zip", False)
+    cl.unzip_parts()
+    # print(cl.merge_charts())
+    cl.create_level()

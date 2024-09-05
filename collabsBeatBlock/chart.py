@@ -1,9 +1,9 @@
-import pathlib
-import zipfile as zp
-import os
-import json
-import shutil
 import glob
+import json
+import os
+import pathlib
+import shutil
+import zipfile as zp
 
 
 def get_name():
@@ -12,10 +12,6 @@ def get_name():
     metadata = d.get("metadata")
     name = f'{metadata.get("artist")} - {metadata.get("songName")} [{metadata.get("difficulty")}] ({metadata.get("charter")})'
     return name
-
-
-def find_root_dir(path):
-    return glob.glob("**/chart.json").parent
 
 
 def copy_deco(part_pth, end_pth):
@@ -68,7 +64,8 @@ class Collab:
                     arcname = os.path.relpath(file_path, full_level_path.parent)
                     zipf.write(file_path, arcname)
 
-    def merge_levels_ind(self):
+    def merge_levels_ind(self, filtered: list | None = None):
+        filtered = filtered
         levels_pths = {f"part_{i}": f"../parts/part_{i}/level.json" for i in range(self.num_of_parts)}
         combined_events = []
         prev_parts_offset = 0
@@ -76,27 +73,39 @@ class Collab:
         merged_data = None
 
         for part, path in levels_pths.items():
-            with open(path, "r", encoding="utf-8") as f:
-                data = json.load(f)
-                events = data.get("events", [])
-                if not isinstance(events, list):
-                    raise ValueError(f"Expected a list for 'events' in {part}, got {type(events).__name__}")
+            try:
+                print(f"Reading {path}")
+                with open(path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                    events = data.get("events", [])
+                    if not isinstance(events, list):
+                        raise ValueError(f"Expected a list for 'events' in {part}, got {type(events).__name__}")
 
-                if len(events) > 0:
-                    if part != "part_0":
-                        for event in events:
-                            print(prev_parts_offset)
-                            print(event["time"])
+                    print(f"Filtered: {filtered}")
+                    if filtered:
+                        filtered_events = [event for event in events if event["type"] not in filtered]
+                    else:
+                        filtered_events = events
+
+                    for event in filtered_events:
+                        if part != "part_0":
                             event["time"] += prev_parts_offset
-                            print(event["time"], "\n")
-                    combined_events.extend(events)
-                    for i in range(len(events)):
-                        if events[-i]["type"] != "deco":
-                            prev_parts_offset = events[-i]["time"]
-                    print(events)
 
-                if part == "part_0":
-                    data_from_first_part = data
+                    combined_events.extend(filtered_events)
+
+                    if filtered_events:
+                        prev_parts_offset = max(event["time"] for event in filtered_events)
+                    print(f"Updated prev_parts_offset: {prev_parts_offset}")
+
+                    if part == "part_0":
+                        data_from_first_part = data
+
+            except FileNotFoundError:
+                print(f"File not found: {path}")
+            except json.JSONDecodeError:
+                print(f"Error decoding JSON in file: {path}")
+            except Exception as e:
+                print(e)
 
         if data_from_first_part:
             merged_data = data_from_first_part.copy()
@@ -132,13 +141,13 @@ class Collab:
         prev_parts_offset = 0
         for part, path in charts_pths.items():
             try:
-                with open(path, 'r') as file_l:
+                with open(path, 'r', encoding='utf-8') as file_l:
                     file = json.load(file_l)
                     for lvl_items in file:
                         if part != "part_0":
                             lvl_items["time"] += prev_parts_offset
                     combined_charts.extend(file)
-                    prev_parts_offset += file[-1][0]["time"]
+                    prev_parts_offset = max(item["time"] for item in file)
             except FileNotFoundError:
                 print(f"File not found: {path}")
             except json.JSONDecodeError:
@@ -159,7 +168,9 @@ class Collab:
                 print(f"Error decoding JSON in file: {path}")
         return combined_charts
 
-    def create_level(self, independent_mode: bool = False):
+    def create_level(self, independent_mode: bool = False, filtered: list | None = None):
+        if filtered is None:
+            filtered = []
         new_path = pathlib.Path(f"../parts/Full_level/{get_name()}")
         new_path.mkdir(parents=True, exist_ok=True)
         lvl_path = pathlib.Path(new_path, "level.json")
@@ -170,17 +181,10 @@ class Collab:
             merged_lvls = self.merge_levels()
         else:
             merged_crt = self.merge_charts_ind()
-            merged_lvls = self.merge_levels_ind()
+            merged_lvls = self.merge_levels_ind(filtered)
 
         dump_file(crt_path, merged_crt)
         dump_file(lvl_path, merged_lvls)
         self.zip_full_level()
 
         shutil.rmtree("../parts")
-
-
-# if __name__ == "__main__":
-    # cl = Collab(, r"../Final.zip")
-    # cl.unzip_parts()
-    # print(cl.merge_levels_ind())
-    # cl.create_level()

@@ -5,8 +5,9 @@ Console program to merge parts of levels in game "[Beat Block](https://store.ste
 [Usage](#Usage)  
 [Flags](#Flags)  
 [For Filters](#for-filters)  
-[Merge Mods](#MergeMods)  
 [Thanks](#Thanks)  
+
+[//]: # ([Merge Mods]&#40;#MergeMods&#41;  )
 
 > If you enter unknown command - program will close.
 
@@ -54,22 +55,23 @@ And you get something like this:
 To use this program start .exe file and type `help`.
 Congratulations, you have seen a list of all possible commands.
 
-|   | Command      | Description                                        |                               Flags                               |
-|---|--------------|----------------------------------------------------|:-----------------------------------------------------------------:|
-| 1 | help         | Get Help.                                          |                                 -                                 |
-| 2 | merge        | General command. Merge your **.zip** archives.     | (-p \| -paths), (-o \| --output-path), (-i \| --independent-mode) |
-| 5 | exit         | Stop the program. (Ctrl + D) also work.            |                                 -                                 |
+|   | Command | Description                                    |                               Flags                               |
+|---|---------|------------------------------------------------|:-----------------------------------------------------------------:|
+| 1 | merge   | General command. Merge your **.zip** archives. | (-p \| -paths), (-o \| --output-path), (-i \| --independent-mode) |
+| 2 | exit    | Stop the program.                              |                                 -                                 |
 
 [//]: # (| 3 | merge_levels | Merge **level.json** files from **.zip** archives. | &#40;-p \| -paths&#41;, &#40;-o \| --output-path&#41;, &#40;-i \| --independent-mode&#41; |)
 
 [//]: # (| 4 | merge_charts | Merge **chart.json** files from **.zip** archives. | &#40;-p \| -paths&#41;, &#40;-o \| --output-path&#41;, &#40;-i \| --independent-mode&#41; |)
 ## Flags
 
-|   | Flag | Full flag          | Description                                                 | Example                                                                                           |
-|---|------|--------------------|-------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
-| 1 | -p   | --paths            | Paths to your **.zip** files.                               | -p "path/p1.zip" "path/p2.zip" "path/pn.zip" \| --paths "path/p1.zip" "path/p2.zip" "path/pn.zip" |
-| 2 | -o   | --output-path      | Path to the archive where the merged level will be written. | -o "path/Final.zip" \| --output-path "path/Final.zip"                                             |
-| 3 | -f   | --filter           | Delete events from final **level.json** file.               | -f "event1" "event2" "eventn" \| --filtered-mode "event1" "event2" "eventn"                       |
+|   | Flag | Full flag     | Description                                                 | Example                                                                               |
+|---|------|---------------|-------------------------------------------------------------|---------------------------------------------------------------------------------------|
+| 1 | -p   | --paths       | Paths to your **.zip** files.                               | -p path/p1.zip path/p2.zip path/pn.zip \| --paths path/p1.zip path/p2.zip path/pn.zip |
+| 2 | -o   | --output-path | Path to the archive where the merged level will be written. | -o path/Final.zip \| --output-path path/Final.zip                                     |
+| 3 | -f   | --filter      | Delete events from final **level.json** file.               | -f event1 event2 eventn \| --filtered-mode event1 event2 eventn                       |
+
+> See [For Filters](#for-filters)
 
 [//]: # (| 3 | -i   | --independent-mode | Enable independent mode.                                    | -i \| --independent-mode                                                                          |)
 > Warning: Do not use an existing archive to write chart files twice. **Chart.json** and **level.json** will be in two, possibly different copies in the same archive.
@@ -95,14 +97,17 @@ Please, type a `In file` names on filter flag.
 | 13 | Set BPM             | setBPM            |
 | 14 | Show Results        | showResults       |
 
-## MergeMods
-Mods to merge means how program will merge parts.
+[//]: # (## MergeMods)
 
-1. Independent mode - Offset part **independent** on the offset of the previous ones.
-2. Sequential mode - Offset part **depends** on the offset of the previous ones.
+[//]: # (Mods to merge means how program will merge parts.)
+
+[//]: # ()
+[//]: # (1. Independent mode - Offset part **independent** on the offset of the previous ones.)
+
+[//]: # (2. Sequential mode - Offset part **depends** on the offset of the previous ones.)
 
 ## Thanks
-Ratori(ratori6),  
-Diwss(diwss),  
-himych(himych_hehe),  
-And me(gerutro).
+Ratori,  
+Diwss,  
+himych,  
+And me.

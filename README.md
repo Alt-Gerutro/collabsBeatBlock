@@ -8,6 +8,8 @@ Console program to merge parts of levels in game "[Beat Block](https://store.ste
 [Merge Mods](#MergeMods)  
 [Thanks](#Thanks)  
 
+> If you enter unknown command - program will close.
+
 ## File Tree
 For everything to work, your .zip files should look like this:
 ```

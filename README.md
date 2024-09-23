@@ -1,7 +1,7 @@
 # collabsBeatBlock
 Console program to merge parts of levels in game "[Beat Block](https://store.steampowered.com/app/3045200/Beatblock/)"  
 
-[File Tree](#file-tree)
+[File Tree](#file-tree)  
 [Usage](#Usage)  
 [Flags](#Flags)  
 [For Filters](#for-filters)  
